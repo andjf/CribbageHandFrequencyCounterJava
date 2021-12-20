@@ -2,6 +2,24 @@ package src.main.java;
 
 public class Main {
 
+	/*
+	*	I used a single byte to represent a card
+	*
+	*	The 4 low bits store the number of the card
+	*	('A' = 0, '2' = 1, '3' = 2, ..., 'Q' = 11, 'K' = 12)
+	*
+	*	The 4 high bits store the suit of the card 
+	*	('S' = 0, 'H' = 1, 'C' = 2, 'D' = 3)
+	*
+	*	For example, 0010 0111 would be broken up as follows:
+	*		- 4 low bits (0111)
+	*			0111 = 7 = '8'
+	*		- 4 high bits (0010)
+	*			0010 = 2 = 'C'
+	*
+	*	So the byte 0010 0111 would represent the 8 of clubs
+	*/
+
 	final static char[] suits = new char[] {'S', 'H', 'C', 'D'};
 	final static char[] numbers = new char[] {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
 
@@ -208,11 +226,11 @@ public class Main {
 	}
 
 	public static void printScoreReport(byte[] hand) {
-		System.out.println("FROM KNOBS: " + pointsFromKnobs(hand));
-		System.out.println("FROM FLUSH: " + pointsFromFlush(hand));
+		System.out.println("FROM KNOBS:    " + pointsFromKnobs(hand));
+		System.out.println("FROM FLUSH:    " + pointsFromFlush(hand));
 		System.out.println("FROM FIFTEENS: " + pointsFromFifteens(hand));
-		System.out.println("FROM PAIRS: " + pointsFromPairs(hand));
-		System.out.println("FROM RUNS: " + pointsFromRuns(hand));
+		System.out.println("FROM PAIRS:    " + pointsFromPairs(hand));
+		System.out.println("FROM RUNS:     " + pointsFromRuns(hand));
 	}
 
 	public static byte score(byte[] hand) {
