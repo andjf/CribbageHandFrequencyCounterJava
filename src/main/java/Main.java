@@ -1,5 +1,9 @@
 package src.main.java;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
 /**
  * @author andjf
  * @version December 20, 2021
@@ -360,10 +364,55 @@ public class Main {
 	 * @param args Unused command line arguments
 	 */
 	public static void main(String[] args) {
-		int[] frequencies = getFrequencies(false);
-		
-		for(int i = 0; i < frequencies.length; i++) {
-			System.out.println(String.format("Score %d:\t%d", i, frequencies[i]));
+		if(args.length == 1) {
+			// If there is a single command line argument, attempt to compare to the given file
+			System.out.println("Attempting to compare results to output file: " + args[0]);
+
+			File file = new File(args[0]);
+			
+			if(file.exists()) {
+				if(file.canRead()) {
+					try {
+						Scanner input = new Scanner(file);
+						
+						int[] frequencies = getFrequencies(false);
+						
+						int inconsistencies = 0;
+						
+						for(int i = 0; i < frequencies.length; i++) {
+							int currentFrequency = input.nextInt();
+							if(frequencies[i] != currentFrequency) {
+								System.out.println(String.format("\nIncorrect frequency for score of %d", i));
+								System.out.println(String.format("Should be %d, saw %d instead\n", currentFrequency, frequencies[i]));
+								inconsistencies++;
+							}
+						}
+						
+						input.close();
+						
+						if(inconsistencies == 0) {
+							System.out.println("*** Results Match! ***");
+						} else {
+							String incStr = inconsistencies == 1 ? "inconsistency" : "inconsistencies";
+							System.out.println(String.format("*** Found %d %s ***", inconsistencies, incStr));
+						}
+						
+					} catch(FileNotFoundException e) {
+						System.out.println(args[0] + " not found.");
+					}
+				} else {
+					System.out.println("Cannot read " + args[0]);
+				}
+			} else {
+				System.out.println(args[0] + " does not exist.");
+			}
+		} else {
+			// If no command line arguments are given, just print the frequencies
+			int[] frequencies = getFrequencies(false);
+			for(int i = 0; i < frequencies.length; i++) {
+				System.out.println(String.format("Score %d:\t%d", i, frequencies[i]));
+			}
 		}
+
 	}
 }
