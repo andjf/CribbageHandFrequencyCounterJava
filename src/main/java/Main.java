@@ -1,5 +1,9 @@
 package src.main.java;
 
+/**
+ * @author andjf
+ * @version December 20, 2021
+ */
 public class Main {
 
 	/*
@@ -20,13 +24,25 @@ public class Main {
 	*	So the byte 0010 0111 would represent the 8 of clubs
 	*/
 
+	// Lists used to print cards
 	final static char[] suits = new char[] {'S', 'H', 'C', 'D'};
 	final static char[] numbers = new char[] {'A', '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K'};
 
+	/**
+	 * Generates the String representation of a card
+	 * @param card The card to get the String representation of
+	 * @return The String representation of the given card
+	 */
 	public static String cardStr(byte card) {
 		return new String(new char[] {numbers[card & 0xF], suits[card >> 4]});
 	}
 
+	/**
+	 * Generates the String representation of a hand
+	 * (an ordered collection of cards)
+	 * @param hand The collection of cards that makes up the hand
+	 * @return The String representation of the given hand
+	 */
 	public static String handStr(byte[] hand) {
 		String toReturn = "";
 		for(byte card : hand) {
@@ -35,6 +51,12 @@ public class Main {
 		return toReturn;
 	}
 
+	/**
+	 * Calculates the value of a card given by cribbage rules. Face cards are 
+	 * worth 10 and all other cards are worth their shown value where Ace is 1.
+	 * @param card The card to get the value of
+	 * @return The value of the card
+	 */
 	public static byte cardValue(byte card) {
 		byte number = (byte)(card & 0xF);
 		if(number < 10) {
@@ -43,10 +65,21 @@ public class Main {
 		return 10;
 	}
 
+	/**
+	 * Creation of a card from a number and suit
+	 * @param number The number of the card (0 <= number <= 12)
+	 * @param suit The suit of the card (0 <= suit <= 3)
+	 * @return The byte representation of a card with given properties
+	 */
 	public static byte createCard(byte number, byte suit) {
 		return (byte)((suit << 4) | number);
 	}
 
+	/**
+	 * Calculates the points earned from knobs
+	 * @param hand The hand to score
+	 * @return The number of points earned from knobs
+	 */
 	public static byte pointsFromKnobs(byte[] hand) {
 		for(byte i = 0; i < 4; i++) {
 			if((hand[i] & 0xF) == 10 && (hand[i] >> 4) == (hand[4] >> 4)) {
@@ -56,6 +89,11 @@ public class Main {
 		return 0;
 	}
 
+	/**
+	 * Calculates the points earned from flushes.
+	 * @param hand The hand to score
+	 * @return The number of points earned from flushes
+	 */
 	public static byte pointsFromFlush(byte[] hand) {
 		int firstSuit = hand[0] >> 4;
 		for(byte i = 1; i < 4; i++) {
@@ -66,6 +104,11 @@ public class Main {
 		return (byte)(hand[4] >> 4 == firstSuit ? 5 : 4);
 	}
 
+	/**
+	 * Calculates the points earned from fifteens.
+	 * @param hand The hand to score
+	 * @return The number of points earned from fifteens
+	 */
 	public static byte pointsFromFifteens(byte[] hand) {
 
 		// there's room for improvement here.
@@ -137,6 +180,11 @@ public class Main {
 		return total;
 	}
 
+	/**
+	 * Calculates the points earned from pairs.
+	 * @param hand The hand to score
+	 * @return The number of points earned from pairs
+	 */
 	public static byte pointsFromPairs(byte[] hand) {
 		byte total = 0;
 		for(byte first = 0; first < hand.length - 1; first++) {
@@ -149,6 +197,11 @@ public class Main {
 		return total;
 	}
 
+	/**
+	 * Calculates the points earned from runs.
+	 * @param hand The hand to score
+	 * @return The number of points earned from runs
+	 */
 	public static byte pointsFromRuns(byte[] hand) {
 		byte[] frequencies = new byte[13];
 		for (byte i = 0; i < 13; i++) {
@@ -225,6 +278,10 @@ public class Main {
 		return (byte)(product * inRunSize);
 	}
 
+	/**
+	 * Prints the score breakdown of the given hand
+	 * @param hand The hand to analyse
+	 */
 	public static void printScoreReport(byte[] hand) {
 		System.out.println("FROM KNOBS:    " + pointsFromKnobs(hand));
 		System.out.println("FROM FLUSH:    " + pointsFromFlush(hand));
@@ -233,6 +290,13 @@ public class Main {
 		System.out.println("FROM RUNS:     " + pointsFromRuns(hand));
 	}
 
+	/**
+	 * Calculates the value (score) of a hand. 
+	 * The scoring is based on the "show" portion of the game.
+	 * More info about scoring here https://www.mastersofgames.com/rules/cribbage-rules.htm
+	 * @param hand The hand to score
+	 * @return The value of the given hand
+	 */
 	public static byte score(byte[] hand) {
 		byte total = 0;
 		total += pointsFromKnobs(hand);
@@ -243,6 +307,13 @@ public class Main {
 		return total;
 	}
 
+	/**
+	 * Generates the frequency distribution of cribbage scores
+	 * and represents it as an array where the value at index i
+	 * represents the number of cribbage hands that are worth i points
+	 * @param verbose Method prints additional info if verbose flag is true
+	 * @return The array representation of the frequency distribution
+	 */
 	public static int[] getFrequencies(boolean verbose) {
 		
 		byte[] deck = new byte[52];
@@ -284,6 +355,10 @@ public class Main {
 		return frequencies;
 	}
 
+	/**
+	 * Main method to drive the calculation
+	 * @param args Unused command line arguments
+	 */
 	public static void main(String[] args) {
 		int[] frequencies = getFrequencies(false);
 		
