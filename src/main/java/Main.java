@@ -287,11 +287,11 @@ public class Main {
 	 * @param hand The hand to analyse
 	 */
 	public static void printScoreReport(byte[] hand) {
-		System.out.println("FROM KNOBS:    " + pointsFromKnobs(hand));
-		System.out.println("FROM FLUSH:    " + pointsFromFlush(hand));
-		System.out.println("FROM FIFTEENS: " + pointsFromFifteens(hand));
-		System.out.println("FROM PAIRS:    " + pointsFromPairs(hand));
-		System.out.println("FROM RUNS:     " + pointsFromRuns(hand));
+		System.out.println(String.format("FROM KNOBS:    %d", pointsFromKnobs(hand)));
+		System.out.println(String.format("FROM FLUSH:    %d", pointsFromFlush(hand)));
+		System.out.println(String.format("FROM FIFTEENS: %d", pointsFromFifteens(hand)));
+		System.out.println(String.format("FROM PAIRS:    %d", pointsFromPairs(hand)));
+		System.out.println(String.format("FROM RUNS:     %d", pointsFromRuns(hand)));
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class Main {
 
 		for(byte drawIndex = 0; drawIndex < deck.length; drawIndex++) {
 			if(verbose) {
-				System.out.println((drawIndex + 1) + "/52");
+				System.out.println(String.format("%d/52", drawIndex + 1));
 			}
 			for(byte first = 0; first < deck.length - 3; first++) {
 				if(first == drawIndex) { continue; }
@@ -352,7 +352,7 @@ public class Main {
 
 		if(verbose) {
 			for(int score = 0; score < frequencies.length; score++) {
-				System.out.println(score + ": " + frequencies[score]);
+				System.out.println(String.format("%d: %d", score, frequencies[score]));
 			}
 		}
 		
@@ -366,7 +366,7 @@ public class Main {
 	public static void main(String[] args) {
 		if(args.length == 1) {
 			// If there is a single command line argument, attempt to compare to the given file
-			System.out.println("Attempting to compare results to output file: " + args[0]);
+			System.out.println(String.format("Attempting to compare results to output file: %s", args[0]));
 
 			File file = new File(args[0]);
 			
@@ -396,15 +396,15 @@ public class Main {
 							String incStr = inconsistencies == 1 ? "inconsistency" : "inconsistencies";
 							System.out.println(String.format("*** Found %d %s ***", inconsistencies, incStr));
 						}
-						
+
 					} catch(FileNotFoundException e) {
-						System.out.println(args[0] + " not found.");
+						System.out.println(String.format(" not found.", args[0]));
 					}
 				} else {
-					System.out.println("Cannot read " + args[0]);
+					System.out.println(String.format("Cannot read %s.", args[0]));
 				}
 			} else {
-				System.out.println(args[0] + " does not exist.");
+				System.out.println(String.format("%s does not exist.", args[0]));
 			}
 		} else {
 			// If no command line arguments are given, just print the frequencies
