@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 
+import java.util.concurrent.*;
+
 /**
  * @author andjf
  * @version December 20, 2021
@@ -304,7 +306,7 @@ public class Main {
 	/**
 	 * Prints the score breakdown of the given hand
 	 * 
-	 * @param hand The hand to analyse
+	 * @param hand The hand to analyze
 	 */
 	public static void printScoreReport(byte[] hand) {
 		System.out.println(String.format("FROM KNOBS:    %d", pointsFromKnobs(hand)));
@@ -345,48 +347,55 @@ public class Main {
 
 		byte[] deck = new byte[52];
 
-		int[] frequencies = new int[30];
-
 		for (byte suit = 0, i = 0; suit < 4; suit++) {
 			for (byte number = 0; number < 13; number++, i++) {
 				deck[i] = createCard(number, suit);
 			}
 		}
 
-		for (byte drawIndex = 0; drawIndex < deck.length; drawIndex++) {
-			if (verbose) {
-				System.out.println(String.format("%d/52", drawIndex + 1));
-			}
-			for (byte first = 0; first < deck.length - 3; first++) {
-				if (first == drawIndex) {
-					continue;
-				}
-				for (byte second = (byte) (first + 1); second < deck.length - 2; second++) {
-					if (second == drawIndex) {
-						continue;
-					}
-					for (byte third = (byte) (second + 1); third < deck.length - 1; third++) {
-						if (third == drawIndex) {
+		int N = 52;
+		ExecutorService ex = Executors.newFixedThreadPool(3);
+		Future<?> f[] = new Future<?>[N];
+
+		for (int drawIndex = 0; drawIndex < N; drawIndex++) {
+			final int di = drawIndex;
+			f[drawIndex] = ex.submit(new Callable<int[]>() {
+				public int[] call() {
+					int[] frq = new int[30];
+					for (byte i1 = 0; i1 < deck.length - 3; i1++) {
+						if (i1 == di)
 							continue;
-						}
-						for (byte fourth = (byte) (third + 1); fourth < deck.length; fourth++) {
-							if (fourth == drawIndex) {
+						for (byte i2 = (byte) (i1 + 1); i2 < deck.length - 2; i2++) {
+							if (i2 == di)
 								continue;
+							for (byte i3 = (byte) (i2 + 1); i3 < deck.length - 1; i3++) {
+								if (i3 == di)
+									continue;
+								for (byte i4 = (byte) (i3 + 1); i4 < deck.length; i4++) {
+									if (i4 == di)
+										continue;
+									byte[] hand = new byte[] { deck[i1], deck[i2], deck[i3], deck[i4], deck[di] };
+									frq[score(hand)]++;
+								}
 							}
-							byte[] hand = new byte[] { deck[first], deck[second], deck[third], deck[fourth],
-									deck[drawIndex] };
-							frequencies[score(hand)]++;
 						}
 					}
+					return frq;
 				}
-			}
+			});
 		}
 
-		if (verbose) {
-			for (int score = 0; score < frequencies.length; score++) {
-				System.out.println(String.format("%d: %d", score, frequencies[score]));
+		int[] frequencies = new int[30];
+		try {
+			for (int thread = 0; thread < N; thread++) {
+				for (int i = 0; i < frequencies.length; i++) {
+					frequencies[i] += ((int[]) f[thread].get())[i];
+				}
 			}
+		} catch (Exception e) {
+			System.out.println("error!");
 		}
+		ex.shutdown();
 
 		return frequencies;
 	}
